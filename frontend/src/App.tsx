@@ -1,135 +1,132 @@
-import { useEffect, useMemo, useState } from "react";
-import { BrowserProvider } from "ethers";
-import { CONTRACT_ADDRESS, HARDHAT_CHAIN_ID } from "./config";
+import { useMemo, useState } from "react";
+import HeaderBar from "./components/HeaderBar";
+import NftGrid from "./components/NftGrid";
+import ActionsPanel from "./components/ActionsPanel";
+import OffersList from "./components/OffersList";
+import { useResourceSwap } from "./hooks/useResourceSwap";
 
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
-
-function shortAddr(a: string) {
-  if (!a || a === "-") return "-";
-  return `${a.slice(0, 6)}…${a.slice(-4)}`;
-}
+type Tab = "nfts" | "actions" | "offers";
 
 export default function App() {
-  const hasMetaMask = !!window.ethereum;
+  const {
+    hasMetaMask,
+    contractAddress,
 
-  const [account, setAccount] = useState<string>("-");
-  const [chainId, setChainId] = useState<number | null>(null);
-  const [msg, setMsg] = useState<string>("");
+    account,
+    chainId,
+    chainOk,
 
-  const provider = useMemo(() => {
-    if (!hasMetaMask) return null;
-    return new BrowserProvider(window.ethereum);
-  }, [hasMetaMask]);
+    msg,
+    txStatus,
 
-  const chainOk = chainId === HARDHAT_CHAIN_ID;
+    owned,
+    offers,
 
-  async function refresh() {
-    if (!provider) return;
+    animalKeys,
 
-    const net = await provider.getNetwork();
-    setChainId(Number(net.chainId));
+    connect,
+    loadMyNfts,
+    loadOffers,
+    loadAll,
 
-    const accs = await provider.send("eth_accounts", []);
-    setAccount(accs?.[0] ?? "-");
-  }
+    mintFromWeb,
+    approveToken,
+    createOffer,
+    acceptOffer,
+    cancelOffer,
+  } = useResourceSwap();
 
-  async function connect() {
-    if (!provider) return;
-    setMsg("");
+  const [tab, setTab] = useState<Tab>("nfts");
 
-    try {
-      const accs = await provider.send("eth_requestAccounts", []);
-      setAccount(accs?.[0] ?? "-");
+  const [selectedOfferedTokenId, setSelectedOfferedTokenId] = useState<number | null>(null);
+  const [selectedRequestedTokenId, setSelectedRequestedTokenId] = useState<number | null>(null);
 
-      const net = await provider.getNetwork();
-      setChainId(Number(net.chainId));
-    } catch (e: any) {
-      setMsg(e?.shortMessage ?? e?.message ?? "Unknown error");
-    }
-  }
-
-  useEffect(() => {
-    refresh();
-  }, [provider]);
-
-  const cardStyle: React.CSSProperties = {
-    border: "1px solid #ddd",
-    borderRadius: 12,
-    padding: 14,
-    background: "#fff",
-    marginTop: 16,
-  };
-
-  const btnStyle: React.CSSProperties = {
-    padding: "10px 14px",
-    borderRadius: 10,
-    border: "1px solid #ddd",
-    cursor: "pointer",
-    background: "#f7f7f7",
-  };
+  const containerStyle: React.CSSProperties = useMemo(
+    () => ({
+      maxWidth: 1150,
+      margin: "24px auto",
+      padding: 16,
+      fontFamily: "system-ui",
+    }),
+    []
+  );
 
   return (
-    <div style={{ maxWidth: 900, margin: "24px auto", padding: 16, fontFamily: "system-ui" }}>
-      <h1 style={{ margin: 0 }}>ResourceSwap Frontend</h1>
+    <div style={{ minHeight: "100vh", background: "#F6F7FF" }}>
+      <div style={containerStyle}>
+        <HeaderBar
+          title="ResourceSwap DApp"
+          contractAddress={contractAddress}
+          hasMetaMask={hasMetaMask}
+          account={account}
+          chainId={chainId}
+          chainOk={chainOk}
+          tab={tab}
+          onTabChange={setTab}
+          onConnect={connect}
+          onLoadNfts={loadMyNfts}
+          onLoadOffers={loadOffers}
+          onLoadAll={loadAll}
+        />
 
-      <div style={{ marginTop: 6, opacity: 0.75 }}>
-        Contract: <span style={{ fontFamily: "monospace" }}>{CONTRACT_ADDRESS}</span>
-      </div>
-
-      {!hasMetaMask && (
-        <div style={cardStyle}>
-          MetaMask not detected. Install MetaMask to use this DApp.
-        </div>
-      )}
-
-      {hasMetaMask && (
-        <div style={cardStyle}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <button onClick={connect} style={btnStyle}>
-              Connect MetaMask
-            </button>
-
-            <div>
-              <div>
-                <b>Account:</b> {shortAddr(account)}
-              </div>
-              <div>
-                <b>Chain:</b> {chainId ?? "-"}{" "}
-                {chainOk ? (
-                  <span style={{ color: "green" }}>(OK)</span>
-                ) : (
-                  <span style={{ color: "crimson" }}>(Switch to Hardhat Local 31337)</span>
-                )}
-              </div>
-            </div>
-
-            <div style={{ marginLeft: "auto" }}>
-              <button onClick={refresh} style={btnStyle}>
-                Refresh
-              </button>
-            </div>
+        {msg && (
+          <div
+            style={{
+              marginTop: 14,
+              padding: 12,
+              borderRadius: 14,
+              border: "1px solid #FDA29B",
+              background: "#FFFBFA",
+              color: "#7A271A",
+              boxShadow: "0 10px 20px rgba(16,24,40,0.06)",
+            }}
+          >
+            {msg}
           </div>
+        )}
 
-          {msg && (
-            <div
-              style={{
-                marginTop: 12,
-                padding: 12,
-                borderRadius: 12,
-                border: "1px solid #f1b0b7",
-                background: "#fdecef",
-                color: "#7a1c2a",
+        <div style={{ marginTop: 12, color: "#667085", fontWeight: 700 }}>Tx status: {txStatus}</div>
+
+        <div style={{ marginTop: 16 }}>
+          {tab === "nfts" && (
+            <NftGrid
+              owned={owned}
+              selectedOfferedTokenId={selectedOfferedTokenId}
+              selectedRequestedTokenId={selectedRequestedTokenId}
+              onPickOffered={(id) => {
+                setSelectedOfferedTokenId(id);
+                setTab("actions");
               }}
-            >
-              {msg}
-            </div>
+              onPickRequested={(id) => {
+                setSelectedRequestedTokenId(id);
+                setTab("actions");
+              }}
+            />
+          )}
+
+          {tab === "actions" && (
+            <ActionsPanel
+              animalKeys={animalKeys}
+              suggestedOfferedTokenId={selectedOfferedTokenId}
+              suggestedRequestedTokenId={selectedRequestedTokenId}
+              onMint={mintFromWeb}
+              onApprove={approveToken}
+              onCreateOffer={createOffer}
+              onAcceptOffer={acceptOffer}
+              onCancelOffer={cancelOffer}
+            />
+          )}
+
+          {tab === "offers" && (
+            <OffersList
+              offers={offers}
+              account={account}
+              onAccept={acceptOffer}
+              onCancel={cancelOffer}
+            />
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
