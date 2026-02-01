@@ -16,7 +16,9 @@ Chaque ressource est représentée par un NFT unique pouvant être échangé ent
 
 L’ensemble des règles métiers est implémenté on-chain et ne peut pas être contourné par le frontend.
 
-### Scénario type
+---
+
+## Scénario type
 
 1. L’utilisateur connecte son portefeuille via MetaMask.  
 2. Il mint une ressource NFT avec des métadonnées prédéfinies.  
