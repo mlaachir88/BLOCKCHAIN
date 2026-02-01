@@ -26,3 +26,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+
+resourceswap/artifacts/
+resourceswap/cache/
+resourceswap/deployments/
+resourceswap/coverage/
+resourceswap/typechain-types/
