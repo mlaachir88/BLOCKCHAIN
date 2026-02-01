@@ -10,6 +10,7 @@ L’application repose sur un smart contract Solidity déployé sur un réseau E
 ## Objectifs du projet
 
 Les objectifs principaux de ResourceSwap sont les suivants :
+
 - démontrer l’utilisation de la blockchain pour la gestion de la propriété d’actifs numériques
 - permettre des échanges trustless entre utilisateurs sans intermédiaire
 - implémenter des règles métiers non contournables directement on-chain
@@ -21,6 +22,7 @@ Les objectifs principaux de ResourceSwap sont les suivants :
 Chaque ressource numérique est représentée par un NFT unique pouvant être échangé entre utilisateurs via un système de marketplace basé sur des offres.
 
 Un scénario d’utilisation typique est le suivant :
+
 1. un utilisateur connecte son portefeuille via MetaMask
 2. il mint une ressource NFT avec des métadonnées prédéfinies
 3. il crée une offre d’échange proposant un swap entre deux NFTs
@@ -32,6 +34,7 @@ Toutes les opérations sont validées on-chain, garantissant la conformité aux 
 ## Justification de l’utilisation de la blockchain
 
 La blockchain est particulièrement adaptée à ce projet car elle permet :
+
 - une propriété vérifiable et immuable des ressources
 - des échanges trustless exécutés par smart contract
 - un historique de transactions transparent et auditable
@@ -43,6 +46,7 @@ La blockchain est particulièrement adaptée à ce projet car elle permet :
 Le projet est organisé sous forme de monorepo, avec une séparation claire entre la logique blockchain et l’interface utilisateur.
 
 Structure du dépôt :
+
 BLOCKCHAIN/
 - frontend/ application React (DApp)
 - resourceswap/ smart contracts, scripts et tests
@@ -51,17 +55,20 @@ BLOCKCHAIN/
 ## Stack technique
 
 Blockchain et smart contracts :
+
 - Ethereum (réseau local Hardhat)
 - Solidity
 - OpenZeppelin ERC721URIStorage
 - ReentrancyGuard
 
 Développement et tests :
+
 - Hardhat
 - Mocha et Chai
 - TypeScript
 
 Frontend :
+
 - React
 - TypeScript
 - Vite
@@ -69,6 +76,7 @@ Frontend :
 - MetaMask
 
 Stockage décentralisé :
+
 - IPFS
 
 ## Conception du smart contract
@@ -76,6 +84,7 @@ Stockage décentralisé :
 Le smart contract principal, ResourceSwap.sol, implémente un NFT ERC721 enrichi par des règles métiers spécifiques.
 
 Chaque NFT contient les informations suivantes :
+
 - name
 - type
 - tier (niveau de 1 à 4)
@@ -86,6 +95,7 @@ Chaque NFT contient les informations suivantes :
 - timestamp du dernier transfert
 
 Règles métiers appliquées on-chain :
+
 - un utilisateur ne peut posséder plus de 4 NFTs
 - un délai minimum est imposé entre deux actions successives
 - un verrou temporaire est appliqué après une action critique (ex. acceptation d’une offre)
@@ -94,6 +104,7 @@ Règles métiers appliquées on-chain :
 ## Système de marketplace et d’échange
 
 Le système d’échange repose sur des offres :
+
 - un utilisateur crée une offre proposant l’échange d’un NFT contre un autre
 - un autre utilisateur peut accepter l’offre s’il possède et a approuvé le NFT demandé
 - le smart contract échange les propriétaires et désactive l’offre
@@ -126,6 +137,7 @@ L’ensemble des validations est réalisé par le smart contract.
 Les tests unitaires sont implémentés avec Hardhat, Mocha et Chai.
 
 Fonctionnalités couvertes :
+
 - mint de NFTs
 - limite de possession
 - règles de cooldown et de verrou
@@ -134,6 +146,7 @@ Fonctionnalités couvertes :
 - cohérence des timestamps
 
 Résultats :
+
 - 19 tests unitaires passants
 - couverture des lignes d’environ 98,75 pour cent
 - couverture des instructions d’environ 96,05 pour cent
@@ -143,6 +156,7 @@ Ces résultats démontrent la robustesse et la fiabilité du smart contract.
 ## Exécution du projet
 
 Smart contract :
+
 cd resourceswap  
 npm install  
 npx hardhat test  
@@ -151,6 +165,7 @@ npx hardhat node
 npx hardhat run scripts/deploy.ts --network localhost  
 
 Frontend :
+
 cd frontend  
 npm install  
 npm run dev  
