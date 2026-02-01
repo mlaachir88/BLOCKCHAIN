@@ -1,171 +1,148 @@
 # ResourceSwap
 
-## Overview
+## Présentation générale
 
-ResourceSwap is a Web3 decentralized application that enables users to mint, own, and exchange digital resources represented as NFTs.  
-The project focuses on implementing a controlled NFT trading system where all business rules are enforced directly on-chain through a smart contract.
+ResourceSwap est une application décentralisée Web3 permettant aux utilisateurs de minter, posséder et échanger des ressources numériques représentées sous forme de NFT.  
+Le projet met l’accent sur un système d’échange contrôlé, dans lequel l’ensemble des règles métiers est appliqué directement par le smart contract afin de garantir sécurité, cohérence et équité.
 
-The application combines a Solidity smart contract deployed on a local Ethereum network with a React frontend that interacts with the blockchain via MetaMask.
+L’application repose sur un smart contract Solidity déployé sur un réseau Ethereum local et sur une interface frontend développée en React, connectée à la blockchain via MetaMask.
 
----
+## Objectifs du projet
 
-## Project Goals
+Les objectifs principaux de ResourceSwap sont les suivants :
+- démontrer l’utilisation de la blockchain pour la gestion de la propriété d’actifs numériques
+- permettre des échanges trustless entre utilisateurs sans intermédiaire
+- implémenter des règles métiers non contournables directement on-chain
+- utiliser un stockage décentralisé pour les métadonnées des NFTs
+- valider le fonctionnement du système à l’aide de tests unitaires complets
 
-The main objectives of ResourceSwap are:
-- Demonstrate the use of blockchain to manage ownership of digital assets
-- Implement trustless exchanges between users without intermediaries
-- Enforce non-bypassable business rules directly in the smart contract
-- Use decentralized storage for NFT metadata
-- Validate the system through extensive unit testing
+## Cas d’usage
 
----
+Chaque ressource numérique est représentée par un NFT unique pouvant être échangé entre utilisateurs via un système de marketplace basé sur des offres.
 
-## Use Case
+Un scénario d’utilisation typique est le suivant :
+1. un utilisateur connecte son portefeuille via MetaMask
+2. il mint une ressource NFT avec des métadonnées prédéfinies
+3. il crée une offre d’échange proposant un swap entre deux NFTs
+4. un autre utilisateur accepte l’offre si toutes les conditions sont respectées
+5. le smart contract échange les propriétaires des NFTs et met à jour l’état
 
-Each digital resource is represented as a unique NFT that can be exchanged between users through a marketplace based on offers.
+Toutes les opérations sont validées on-chain, garantissant la conformité aux règles métiers.
 
-A typical usage flow is:
-1. A user connects their wallet using MetaMask
-2. The user mints a resource NFT with predefined metadata
-3. The user creates an exchange offer proposing a swap between two NFTs
-4. Another user accepts the offer if all conditions are satisfied
-5. The smart contract swaps ownership of the NFTs and updates the state
+## Justification de l’utilisation de la blockchain
 
-All operations are validated on-chain, ensuring correctness and security.
+La blockchain est particulièrement adaptée à ce projet car elle permet :
+- une propriété vérifiable et immuable des ressources
+- des échanges trustless exécutés par smart contract
+- un historique de transactions transparent et auditable
+- l’application stricte des règles métiers sans dépendance au frontend
+- un stockage décentralisé des métadonnées via IPFS
 
----
+## Architecture du projet
 
-## Why Blockchain
+Le projet est organisé sous forme de monorepo, avec une séparation claire entre la logique blockchain et l’interface utilisateur.
 
-Blockchain technology is relevant for this project because it provides:
-- Verifiable and immutable ownership of resources
-- Trustless exchanges enforced by smart contracts
-- Transparent and auditable transaction history
-- Strict enforcement of business rules
-- Decentralized storage of metadata via IPFS
-
----
-
-## Architecture
-
-The project is organized as a monorepo with a clear separation between frontend and blockchain logic.
-
-Repository structure:
-
+Structure du dépôt :
 BLOCKCHAIN/
-- frontend/        React application (DApp interface)
-- resourceswap/    Smart contracts, scripts, and tests
-- docs/            Documentation and report assets
+- frontend/ application React (DApp)
+- resourceswap/ smart contracts, scripts et tests
+- docs/ documentation et ressources du rapport
 
----
+## Stack technique
 
-## Technical Stack
-
-Blockchain and Smart Contracts:
-- Ethereum (Hardhat local network)
+Blockchain et smart contracts :
+- Ethereum (réseau local Hardhat)
 - Solidity
 - OpenZeppelin ERC721URIStorage
 - ReentrancyGuard
 
-Development and Testing:
+Développement et tests :
 - Hardhat
-- Mocha and Chai
+- Mocha et Chai
 - TypeScript
 
-Frontend:
+Frontend :
 - React
 - TypeScript
 - Vite
 - ethers.js v6
 - MetaMask
 
-Decentralized Storage:
+Stockage décentralisé :
 - IPFS
 
----
+## Conception du smart contract
 
-## Smart Contract Design
+Le smart contract principal, ResourceSwap.sol, implémente un NFT ERC721 enrichi par des règles métiers spécifiques.
 
-The main contract, ResourceSwap.sol, implements an ERC721 NFT with extended business logic.
-
-Each NFT includes:
+Chaque NFT contient les informations suivantes :
 - name
 - type
-- tier (level from 1 to 4)
+- tier (niveau de 1 à 4)
 - value
-- IPFS URI
-- previous owners
-- creation timestamp
-- last transfer timestamp
+- URI IPFS
+- historique simplifié des propriétaires
+- timestamp de création
+- timestamp du dernier transfert
 
-Business rules enforced on-chain:
-- Maximum of 4 NFTs owned per user
-- Cooldown period between consecutive actions
-- Temporary lock after critical actions such as accepting an offer
-- Ownership and approval checks for all exchanges
+Règles métiers appliquées on-chain :
+- un utilisateur ne peut posséder plus de 4 NFTs
+- un délai minimum est imposé entre deux actions successives
+- un verrou temporaire est appliqué après une action critique (ex. acceptation d’une offre)
+- toutes les opérations vérifient la propriété et les approvals ERC721
 
----
+## Système de marketplace et d’échange
 
-## Marketplace and Exchange System
+Le système d’échange repose sur des offres :
+- un utilisateur crée une offre proposant l’échange d’un NFT contre un autre
+- un autre utilisateur peut accepter l’offre s’il possède et a approuvé le NFT demandé
+- le smart contract échange les propriétaires et désactive l’offre
+- le créateur de l’offre peut annuler celle-ci tant qu’elle n’a pas été acceptée
 
-The exchange system is based on offers:
-- A user creates an offer proposing to exchange one NFT for another
-- Another user can accept the offer if they own and approved the requested NFT
-- The smart contract swaps ownership and deactivates the offer
-- The offer creator can cancel an active offer
+Ce mécanisme garantit des échanges sécurisés et contrôlés.
 
-This design prevents unauthorized transfers and ensures fairness.
+## Intégration IPFS
 
----
+Les métadonnées des NFTs sont stockées sur IPFS sous forme de fichiers JSON.  
+Le champ tokenURI de chaque NFT pointe vers une adresse ipfs://.
 
-## IPFS Integration
+Le frontend convertit ces URI via une gateway HTTP afin d’afficher les images et les informations tout en conservant la décentralisation des données.
 
-NFT metadata is stored as JSON files on IPFS.  
-Each NFT tokenURI points to an ipfs:// address.
+## Application frontend
 
-The frontend converts IPFS URIs to HTTP gateways to display images and metadata while keeping the data decentralized.
+L’interface utilisateur permet de :
+- se connecter via MetaMask
+- visualiser les NFTs possédés
+- minter de nouveaux NFTs
+- approuver des NFTs pour les échanges
+- créer, accepter et annuler des offres
+- consulter le marketplace
+- visualiser l’état des transactions (pending, success, error)
 
----
+L’ensemble des validations est réalisé par le smart contract.
 
-## Frontend Application
+## Tests unitaires et validation
 
-The frontend allows users to:
-- Connect their wallet via MetaMask
-- View owned NFTs
-- Mint new NFTs
-- Approve NFTs for exchange
-- Create, accept, and cancel offers
-- Browse marketplace offers
-- View transaction status (pending, success, error)
+Les tests unitaires sont implémentés avec Hardhat, Mocha et Chai.
 
-All validations are performed by the smart contract.
+Fonctionnalités couvertes :
+- mint de NFTs
+- limite de possession
+- règles de cooldown et de verrou
+- création, acceptation et annulation d’offres
+- vérification des approvals et de la propriété
+- cohérence des timestamps
 
----
+Résultats :
+- 19 tests unitaires passants
+- couverture des lignes d’environ 98,75 pour cent
+- couverture des instructions d’environ 96,05 pour cent
 
-## Testing and Validation
+Ces résultats démontrent la robustesse et la fiabilité du smart contract.
 
-Unit tests are implemented using Hardhat with Mocha and Chai.
+## Exécution du projet
 
-Covered features include:
-- NFT minting
-- Ownership limits
-- Cooldown and lock rules
-- Offer creation, acceptance, and cancellation
-- Approval and ownership validation
-- Timestamp consistency
-
-Test results:
-- 19 unit tests passing
-- Line coverage approximately 98.75 percent
-- Statement coverage approximately 96.05 percent
-
-These results demonstrate the robustness and reliability of the smart contract.
-
----
-
-## Running the Project
-
-Smart contract setup:
+Smart contract :
 cd resourceswap  
 npm install  
 npx hardhat test  
@@ -173,18 +150,15 @@ npx hardhat test --coverage
 npx hardhat node  
 npx hardhat run scripts/deploy.ts --network localhost  
 
-Frontend setup:
+Frontend :
 cd frontend  
 npm install  
 npm run dev  
 
-MetaMask must be connected to the Hardhat local network (chain ID 31337).
-
----
+MetaMask doit être connecté au réseau local Hardhat (chain ID 31337).
 
 ## Conclusion
 
-ResourceSwap fulfills the project requirements by combining a secure smart contract, strict on-chain business rules, decentralized metadata storage, and a functional frontend interface.  
-The project demonstrates a solid understanding of blockchain development, smart contract design, testing practices, and Web3 application architecture.
-
-Potential future improvements include offer pagination, data indexing using The Graph, and deployment to a public testnet.
+ResourceSwap répond pleinement aux exigences du projet en combinant un smart contract sécurisé, des règles métiers strictes appliquées on-chain, un stockage décentralisé des métadonnées et une interface utilisateur fonctionnelle.  
+Le projet démontre une bonne maîtrise du développement blockchain, de la conception de smart contracts, des tests unitaires et de l’architecture des applications Web3.  
+Des améliorations futures pourraient inclure la pagination des offres, l’indexation des données via The Graph et un déploiement sur un testnet public.
